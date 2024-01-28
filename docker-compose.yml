@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_HOST: ${DB_HOST}
+  php1:
+    build:
+      context: ./TP-Final-3IW-ESGI
+      dockerfile: Dockerfile
+    volumes:
+      - ./TP-Final-3IW-ESGI/storage:/var/www/html/storage
+      - ./TP-Final-3IW-ESGI/bootstrap/cache:/var/www/html/bootstrap/cache
+    depends_on:
+      - db
+
+  php2:
+    build:
+      context: ./TP-Final-3IW-ESGI2
+      dockerfile: Dockerfile
+    volumes:
+      - ./TP-Final-3IW-ESGI2/storage:/var/www/html/storage
+      - ./TP-Final-3IW-ESGI2/bootstrap/cache:/var/www/html/bootstrap/cache
+    depends_on:
+      - db
+
+  nginx1:
+    image: nginx:latest
+    ports:
+      - "8081:80"
+    volumes:
+      - ./TP-Final-3IW-ESGI/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php1
+
+  nginx2:
+    image: nginx:latest
+    ports:
+      - "8082:80"
+    volumes:
+      - ./TP-Final-3IW-ESGI2/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php2
